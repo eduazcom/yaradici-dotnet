@@ -8,7 +8,7 @@ namespace YaradiciEduAz.Abstractions.IServices
     {
         public Task<GenericResponseModel<List<CategoryGetDto>>> GetAllCategories();
         public Task<GenericResponseModel<CategoryGetDto>> GetCategoryById(int id);
-        public Task<GenericResponseModel<CategoryCreateUpdateDto>> CreateCategory(CategoryCreateUpdateDto dto);
+        public Task<GenericResponseModel<bool>> CreateCategory(CategoryCreateUpdateDto dto);
         public Task<GenericResponseModel<bool>> UpdateCategory(int id, CategoryCreateUpdateDto category);
         public Task<GenericResponseModel<bool>> DeleteCategory(int id);
     }

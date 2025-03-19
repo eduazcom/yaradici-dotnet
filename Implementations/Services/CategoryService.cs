@@ -1,9 +1,8 @@
 ﻿using AutoMapper;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
-using YaradiciEduAz.Abstractions.IRepositories;
 using YaradiciEduAz.Abstractions.IServices;
-using YaradiciEduAz.Abstractions.IUnitOfWorks;
+using YaradiciEduAz.Contexts;
 using YaradiciEduAz.DTOs.CategoryDTOs;
 using YaradiciEduAz.Entities;
 using YaradiciEduAz.Models;
@@ -13,21 +12,19 @@ namespace YaradiciEduAz.Implementations.Services
 {
     public class CategoryService : ICategoryService
     {
-        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private IGenericRepository<Category> _categoryRepo;
+        private readonly AppDbContext _context;
         CategoryCreateUpdateDtoValidator validator = new();
 
-        public CategoryService(IMapper mapper, IUnitOfWork unitOfWork)
+        public CategoryService(IMapper mapper, AppDbContext context)
         {
-            _unitOfWork = unitOfWork;
             _mapper = mapper;
-            _categoryRepo=_unitOfWork.GetRepository<Category>();
+            _context = context;
         }
 
-        public async Task<GenericResponseModel<CategoryCreateUpdateDto>> CreateCategory(CategoryCreateUpdateDto dto)
+        public async Task<GenericResponseModel<bool>> CreateCategory(CategoryCreateUpdateDto dto)
         {
-            GenericResponseModel<CategoryCreateUpdateDto> responseModel = new();
+            GenericResponseModel<bool> responseModel = new();
             if (dto == null) return responseModel;
             ValidationResult results = validator.Validate(dto);
             if (!results.IsValid)
@@ -40,11 +37,11 @@ namespace YaradiciEduAz.Implementations.Services
                 return responseModel;
             }
             Category category = _mapper.Map<Category>(dto);
-            await _categoryRepo.Add(category);
-            var affectedRows = await _unitOfWork.SaveAsync();
+            await _context.Categories.AddAsync(category);
+            var affectedRows = await _context.SaveChangesAsync();
             if(affectedRows>0)
             {
-                responseModel.Data = dto;
+                responseModel.Data = true;
                 responseModel.Message = "Category created successfully";
                 responseModel.StatusCode = 200;
             }
@@ -59,10 +56,10 @@ namespace YaradiciEduAz.Implementations.Services
         public async Task<GenericResponseModel<bool>> DeleteCategory(int id)
         {
             GenericResponseModel<bool> responseModel = new();
-            var category = await _categoryRepo.GetById(id);
+            var category = await _context.Categories.FindAsync(id);
             if (category == null) return responseModel;
-            await _categoryRepo.Delete(id);
-            var affectedRows = await _unitOfWork.SaveAsync();
+            _context.Categories.Remove(category);
+            var affectedRows = await _context.SaveChangesAsync();
             if (affectedRows > 0)
             {
                 responseModel.Data = true;
@@ -81,7 +78,7 @@ namespace YaradiciEduAz.Implementations.Services
         public async Task<GenericResponseModel<List<CategoryGetDto>>> GetAllCategories()
         {
             GenericResponseModel<List<CategoryGetDto>> responseModel = new();
-            List<Category> categories = await _categoryRepo.GetAll().ToListAsync();
+            List<Category> categories = await _context.Categories.ToListAsync();
             if (categories == null) return responseModel;
             List<CategoryGetDto> data = _mapper.Map<List<CategoryGetDto>>(categories);
             responseModel.Data = data;
@@ -94,7 +91,7 @@ namespace YaradiciEduAz.Implementations.Services
         public async Task<GenericResponseModel<CategoryGetDto>> GetCategoryById(int id)
         {
             GenericResponseModel<CategoryGetDto> responseModel = new();
-            var category = await _categoryRepo.GetById(id);
+            var category = await _context.Categories.FindAsync(id);
             if (category == null) return responseModel;
             CategoryGetDto data = _mapper.Map<CategoryGetDto>(category);
             responseModel.Data = data;
@@ -106,12 +103,12 @@ namespace YaradiciEduAz.Implementations.Services
         public async Task<GenericResponseModel<bool>> UpdateCategory(int id, CategoryCreateUpdateDto category)
         {
             GenericResponseModel<bool> responseModel = new();
-            var data = await _categoryRepo.GetById(id);
+            var data = await _context.Categories.FindAsync(id);
             if (data == null) return responseModel;
             data.Name = category.Name;
             data.Updated_At = DateTime.Now;
-            await _categoryRepo.Update(data);
-            var affectedRows = await _unitOfWork.SaveAsync();
+             _context.Categories.Update(data);
+            var affectedRows = await _context.SaveChangesAsync();
             if (affectedRows > 0)
             {
                 responseModel.Data = true;
