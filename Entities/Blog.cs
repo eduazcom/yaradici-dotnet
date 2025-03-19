@@ -1,4 +1,6 @@
-﻿namespace YaradiciEduAz.Entities
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace YaradiciEduAz.Entities
 {
     public class Blog
     {

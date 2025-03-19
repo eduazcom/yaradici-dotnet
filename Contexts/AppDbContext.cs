@@ -9,11 +9,11 @@ namespace YaradiciEduAz.Contexts
         {
 
         }
-        DbSet<Category> Categories { get; set; }
-        DbSet<Blog> Blogs { get; set; }
-        DbSet<Setting> Settings { get; set; }
-        DbSet<Slide> Slides { get; set; }
-        DbSet<Teacher> Teachers { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Setting> Settings { get; set; }
+        public DbSet<Slide> Slides { get; set; }
+        public DbSet<Teacher> Teachers { get; set; }
 
     }
 }
