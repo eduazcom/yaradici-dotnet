@@ -10,4 +10,8 @@ obj/
 /node_modules
 /wwwroot/node_modules
 
+# Environment-Specific configuration files
+appsettings.Development.json
+appsettings.Production.json
+
 # End of https://www.toptal.com/developers/gitignore/api/dotnetcore
